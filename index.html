@@ -1,0 +1,2904 @@
+# My Story - Aplikasi Web PWA Penulis Novel
+
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#09090B">
+  <title>My Story — Studio Penulis Novel PWA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & THEME VARIABLES (HITAM-EMAS & PUTIH-EMAS)
+       ========================================================================== */
+    :root {
+      --gold-primary: #D4AF37;
+      --gold-light: #F3D06B;
+      --gold-dark: #9E7B1C;
+      --gold-glow: rgba(212, 175, 55, 0.16);
+      --gold-border: rgba(212, 175, 55, 0.36);
+      --danger-bg: rgba(220, 38, 38, 0.12);
+      --danger-text: #EF4444;
+      --danger-border: rgba(239, 68, 68, 0.32);
+      --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --drawer-width: 276px;
+    }
+
+    [data-theme="dark"] {
+      --bg-app: #09090B;
+      --bg-surface: #121215;
+      --bg-elevated: #1A1A1F;
+      --bg-input: #0E0E11;
+      --text-primary: #F8F6F0;
+      --text-secondary: #A8A29E;
+      --text-muted: #78716C;
+      --border-subtle: rgba(212, 175, 55, 0.22);
+      --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.65);
+    }
+
+    [data-theme="light"] {
+      --bg-app: #FCFBF7;
+      --bg-surface: #FFFFFF;
+      --bg-elevated: #F6F2E6;
+      --bg-input: #FAF8F2;
+      --text-primary: #1C1917;
+      --text-secondary: #57534E;
+      --text-muted: #78716C;
+      --border-subtle: rgba(180, 138, 28, 0.3);
+      --shadow-card: 0 8px 25px rgba(158, 123, 28, 0.1);
+    }
+
+    /* ==========================================================================
+       2. RESET & BASE TYPOGRAPHY
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    h1, h2, h3, h4, .brand-font {
+      font-family: 'Cinzel', Georgia, serif;
+      letter-spacing: 0.03em;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-app); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 99px; }
+
+    /* ==========================================================================
+       3. REUSABLE UI CONTROLS (BUTTONS & FORMS)
+       ========================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: var(--transition);
+      text-decoration: none;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+
+    .btn-xs {
+      padding: 4px 8px;
+      font-size: 0.74rem;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+      color: #09090B;
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
+    }
+
+    .btn-gold:hover {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--gold-border);
+      color: var(--gold-primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--gold-glow);
+      border-color: var(--gold-primary);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 8px 12px;
+    }
+
+    .btn-ghost:hover {
+      background: var(--gold-glow);
+      color: var(--gold-primary);
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border-color: var(--danger-border);
+    }
+
+    .btn-danger:hover {
+      background: rgba(220, 38, 38, 0.22);
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gold-primary);
+      margin-bottom: 6px;
+    }
+
+    .input-field, .textarea-field, .select-field {
+      width: 100%;
+      background-color: var(--bg-input);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 0.925rem;
+      transition: var(--transition);
+    }
+
+    .input-field:focus, .textarea-field:focus, .select-field:focus {
+      outline: none;
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    .select-compact {
+      width: auto;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+    }
+
+    /* ==========================================================================
+       4. APP SHELL & NAVIGATION DRAWER
+       ========================================================================== */
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .drawer {
+      width: var(--drawer-width);
+      background-color: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 50;
+      transition: transform 0.3s ease;
+    }
+
+    .drawer-header {
+      padding: 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-box {
+      width: 62px;
+      height: 62px;
+      border-radius: var(--radius-sm);
+      background: #050505;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(212, 175, 55, 0.22);
+      transition: var(--transition);
+    }
+
+    .brand-logo-box:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 22px rgba(212, 175, 55, 0.42);
+    }
+
+    .brand-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .brand-title {
+      color: var(--gold-primary);
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .drawer-nav {
+      padding: 16px 12px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      padding: 12px 12px 4px;
+    }
+
+    .active-book-badge {
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      color: var(--gold-primary);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      text-align: left;
+      width: 100%;
+      transition: var(--transition);
+    }
+
+    .nav-item:hover:not(:disabled) {
+      background: var(--gold-glow);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.18), transparent);
+      border-left: 3px solid var(--gold-primary);
+      color: var(--gold-primary);
+      font-weight: 600;
+    }
+
+    .nav-item:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .drawer-footer {
+      padding: 14px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+    }
+
+    .user-account-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .user-info {
+      min-width: 0;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-email {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ==========================================================================
+       5. MAIN WORKSPACE, TOPBAR & EXPORT BAR
+       ========================================================================== */
+    .main-wrapper {
+      flex: 1;
+      margin-left: var(--drawer-width);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 99px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22C55E;
+    }
+
+    .status-dot.offline {
+      background: #F59E0B;
+    }
+
+    .export-bar {
+      background: linear-gradient(90deg, var(--bg-elevated), var(--bg-surface));
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .export-bar.hidden {
+      display: none;
+    }
+
+    .export-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .export-summary {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    .content-area {
+      padding: 28px 24px;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+
+    .view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .view-title {
+      color: var(--gold-primary);
+      font-size: 1.7rem;
+      line-height: 1.25;
+    }
+
+    .view-desc {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================================
+       6. CARDS, PANELS & DASHBOARD GRID
+       ========================================================================== */
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 20px;
+    }
+
+    .panel-compact {
+      margin-bottom: 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 20px;
+    }
+
+    .novel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+      gap: 24px;
+    }
+
+    .empty-state-panel {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 56px 24px;
+    }
+
+    .empty-state-icon {
+      font-size: 2.6rem;
+      margin-bottom: 10px;
+    }
+
+    .empty-state-text {
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+    }
+
+    .novel-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+    }
+
+    .novel-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold-primary);
+    }
+
+    .novel-card.active-project {
+      border-color: var(--gold-primary);
+    }
+
+    .novel-cover {
+      height: 195px;
+      background: linear-gradient(135deg, #141417, #262012);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .novel-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .novel-cover-placeholder {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .genre-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(9, 9, 11, 0.88);
+      color: var(--gold-primary);
+      border: 1px solid var(--gold-primary);
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      backdrop-filter: blur(4px);
+    }
+
+    .novel-card-body {
+      padding: 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .novel-card-title {
+      color: var(--gold-primary);
+      font-size: 1.15rem;
+    }
+
+    .novel-card-premise {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 2.6em;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+
+    .progress-pct {
+      color: var(--gold-primary);
+      font-weight: 700;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: var(--bg-elevated);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+      border-radius: 99px;
+      transition: width 0.35s ease;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* ==========================================================================
+       7. BOOK IDENTITY, WORLD & OUTLINE SPECIFICS
+       ========================================================================== */
+    .cover-preview-box {
+      width: 100%;
+      max-width: 240px;
+      height: 330px;
+      margin: 12px auto;
+      border-radius: var(--radius-md);
+      border: 1.5px dashed var(--gold-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 16px;
+    }
+
+    .cover-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: calc(var(--radius-md) - 2px);
+    }
+
+    .sub-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .sub-tab {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .sub-tab.active {
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+      background: var(--gold-glow);
+    }
+
+    .relation-tag {
+      margin-left: 8px;
+      font-size: 0.75rem;
+      padding: 2px 10px;
+      border-radius: 99px;
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-primary);
+    }
+
+    .chapter-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .chapter-title-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px dashed var(--gold-border);
+      color: var(--gold-primary);
+      font-size: 1.15rem;
+      font-weight: 700;
+      flex: 1;
+      min-width: 200px;
+      padding-bottom: 4px;
+    }
+
+    .chapter-title-input:focus {
+      outline: none;
+      border-bottom-color: var(--gold-primary);
+    }
+
+    .scene-row {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .scene-row-inputs {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .scene-inline-title {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.92rem;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+
+    .scene-inline-summary {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.82rem;
+      width: 100%;
+    }
+
+    .scene-inline-title:focus, .scene-inline-summary:focus {
+      outline: none;
+    }
+
+    /* ==========================================================================
+       8. DISTRACTION-FREE MANUSCRIPT EDITOR
+       ========================================================================== */
+    .editor-wrapper {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .editor-wrapper.zen-mode {
+      grid-template-columns: 1fr;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .editor-wrapper.zen-mode .scene-sidebar {
+      display: none;
+    }
+
+    .scene-tree-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      font-family: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      margin-top: 3px;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+
+    .scene-tree-btn:hover {
+      background: var(--gold-glow);
+    }
+
+    .scene-tree-btn.active {
+      background: var(--gold-glow);
+      color: var(--gold-primary);
+      font-weight: 600;
+    }
+
+    .manuscript-paper {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 36px 42px;
+      box-shadow: var(--shadow-card);
+      min-height: 68vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .manuscript-scene-title {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--gold-primary);
+      font-size: 1.35rem;
+      font-weight: 700;
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+      width: 100%;
+    }
+
+    .manuscript-scene-title:focus {
+      outline: none;
+      border-bottom-color: var(--gold-primary);
+    }
+
+    .manuscript-textarea {
+      width: 100%;
+      flex: 1;
+      min-height: 52vh;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.32rem;
+      line-height: 1.9;
+      resize: vertical;
+    }
+
+    .manuscript-textarea:focus {
+      outline: none;
+    }
+
+    /* ==========================================================================
+       9. MODALS & TOAST NOTIFICATIONS
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1.5px solid var(--gold-primary);
+      border-radius: var(--radius-lg);
+      max-width: 480px;
+      width: 100%;
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .modal-title {
+      color: var(--gold-primary);
+      font-size: 1.3rem;
+    }
+
+    .stack-md {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .toast-box {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--gold-primary);
+      border-left: 4px solid var(--gold-primary);
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-card);
+      font-size: 0.875rem;
+      font-weight: 500;
+      animation: slideIn 0.25s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 40;
+    }
+
+    /* ==========================================================================
+       10. RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 960px) {
+      .drawer {
+        transform: translateX(-100%);
+      }
+      .drawer.open {
+        transform: translateX(0);
+      }
+      .drawer-overlay.open {
+        display: block;
+      }
+      .main-wrapper {
+        margin-left: 0;
+      }
+      .mobile-menu-btn {
+        display: inline-flex;
+      }
+      .editor-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .manuscript-paper {
+        padding: 22px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Drawer Overlay -->
+  <div id="drawerOverlay" class="drawer-overlay"></div>
+
+  <div class="app-shell">
+    <!-- Navigation Drawer -->
+    <aside id="appDrawer" class="drawer" aria-label="Navigasi Utama">
+      <div class="drawer-header">
+        <div id="brandLogoContainer" class="brand-logo-box" title="Klik untuk mengganti gambar logo">
+          <svg viewBox="0 0 200 200" width="60" height="60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="200" height="200" fill="#050505"/>
+            <rect x="12" y="12" width="176" height="176" fill="none" stroke="#D4AF37" stroke-width="2.2"/>
+            <rect x="17" y="17" width="166" height="166" fill="none" stroke="#9E7B1C" stroke-width="1.2"/>
+            <path d="M12 34 Q28 34 34 12 M188 34 Q172 34 166 12 M12 166 Q28 166 34 188 M188 166 Q172 166 166 188" fill="none" stroke="#D4AF37" stroke-width="1.8"/>
+            <circle cx="21" cy="21" r="2.2" fill="#F3D06B"/>
+            <circle cx="179" cy="21" r="2.2" fill="#F3D06B"/>
+            <circle cx="21" cy="179" r="2.2" fill="#F3D06B"/>
+            <circle cx="179" cy="179" r="2.2" fill="#F3D06B"/>
+            <polygon points="100,6 105,12 100,18 95,12" fill="#D4AF37" stroke="#050505" stroke-width="1"/>
+            <polygon points="100,182 105,188 100,194 95,188" fill="#D4AF37" stroke="#050505" stroke-width="1"/>
+            <polygon points="6,100 12,95 18,100 12,105" fill="#D4AF37" stroke="#050505" stroke-width="1"/>
+            <polygon points="182,100 188,95 194,100 188,105" fill="#D4AF37" stroke="#050505" stroke-width="1"/>
+            <path d="M58 46 L112 34 L152 98 L98 112 Z" fill="#12100B" stroke="#D4AF37" stroke-width="2.2"/>
+            <path d="M65 51 L109 41 L143 94 L100 105 Z" fill="none" stroke="#9E7B1C" stroke-width="1.1"/>
+            <path d="M48 53 C43 68, 66 108, 84 119 L98 112 L58 46 Z" fill="#8C6A14" stroke="#D4AF37" stroke-width="1.8"/>
+            <path d="M51 66 Q58 62 63 60 M60 82 Q67 78 72 76 M70 98 Q77 94 82 92" fill="none" stroke="#F3D06B" stroke-width="1.8"/>
+            <path d="M88 116 L150 100 L154 110 L90 127 C81 129, 79 119, 88 116 Z" fill="#D4AF37"/>
+            <line x1="92" y1="120" x2="149" y2="105" stroke="#050505" stroke-width="1.1"/>
+            <path d="M98 117 L101 135 L106 130 L111 135 L108 115 Z" fill="#E5B93B" stroke="#050505" stroke-width="0.8"/>
+            <path d="M158 30 C134 38, 108 62, 92 88 L99 93 C119 76, 144 54, 158 30 Z" fill="#E5B93B" stroke="#9E7B1C" stroke-width="1.1"/>
+            <line x1="156" y1="32" x2="72" y2="122" stroke="#F3D06B" stroke-width="2.4" stroke-linecap="round"/>
+            <polygon points="72,122 61,134 77,127" fill="#F3D06B" stroke="#050505" stroke-width="0.8"/>
+            <line x1="42" y1="142" x2="86" y2="142" stroke="#D4AF37" stroke-width="1.2"/>
+            <circle cx="100" cy="142" r="2.5" fill="#F3D06B"/>
+            <line x1="114" y1="142" x2="158" y2="142" stroke="#D4AF37" stroke-width="1.2"/>
+            <text x="100" y="166" text-anchor="middle" fill="#D4AF37" font-family="Georgia, 'Times New Roman', serif" font-size="23" font-weight="600" letter-spacing="0.5">My Story</text>
+            <line x1="62" y1="174" x2="138" y2="174" stroke="#9E7B1C" stroke-width="1"/>
+          </svg>
+        </div>
+        <input type="file" id="customLogoInput" accept="image/*" hidden>
+        <div>
+          <div class="brand-font brand-title">My Story</div>
+          <div class="brand-subtitle" data-i18n="appSubtitle">Studio Penulis Novel</div>
+        </div>
+      </div>
+
+      <nav class="drawer-nav">
+        <div class="nav-section-title" data-i18n="navWorkspace">Ruang Kerja</div>
+        <button type="button" class="nav-item active" data-view="dashboard">
+          <span>📚</span> <span data-i18n="navDashboard">Dashboard Novel</span>
+        </button>
+
+        <div class="nav-section-title" data-i18n="navActiveBook">Proyek Aktif</div>
+        <div id="activeBookBadge" class="active-book-badge">—</div>
+
+        <button type="button" class="nav-item project-req" data-view="identity" disabled>
+          <span>🪪</span> <span data-i18n="navIdentity">Identitas Buku</span>
+        </button>
+        <button type="button" class="nav-item project-req" data-view="world" disabled>
+          <span>🌍</span> <span data-i18n="navWorld">Dunia dan Tokoh</span>
+        </button>
+        <button type="button" class="nav-item project-req" data-view="outline" disabled>
+          <span>🗂️</span> <span data-i18n="navOutline">Kerangka / Outline</span>
+        </button>
+        <button type="button" class="nav-item project-req" data-view="editor" disabled>
+          <span>✒️</span> <span data-i18n="navEditor">Naskah / Editor</span>
+        </button>
+      </nav>
+
+      <div class="drawer-footer">
+        <div class="user-account-card">
+          <div class="user-info">
+            <div id="userNameDisplay" class="user-name">Penulis Tamu</div>
+            <div id="userEmailDisplay" class="user-email">Mode Offline Lokal</div>
+          </div>
+          <button type="button" id="authActionBtn" class="btn btn-outline btn-xs" data-i18n="btnLogin">Masuk</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+      <!-- Top Header -->
+      <header class="topbar">
+        <div class="topbar-group">
+          <button type="button" id="mobileMenuBtn" class="btn btn-outline btn-sm mobile-menu-btn" aria-label="Menu">☰</button>
+          <span class="status-pill">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">PWA Siap Offline</span>
+          </span>
+        </div>
+
+        <div class="topbar-group">
+          <select id="langSelect" class="select-field select-compact" aria-label="Bahasa Aplikasi">
+            <option value="id">🇮🇩 Bahasa Indonesia</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="ja">🇯🇵 日本語</option>
+          </select>
+
+          <button type="button" id="themeToggleBtn" class="btn btn-outline btn-sm">
+            ☀️ <span data-i18n="themeLight">Tema Terang</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Export Bar -->
+      <div id="exportBar" class="export-bar hidden">
+        <div class="topbar-group">
+          <span class="export-label" data-i18n="exportLabel">Export Naskah & Metadata:</span>
+          <span id="exportMetaSummary" class="export-summary"></span>
+        </div>
+        <div class="topbar-group">
+          <button type="button" class="btn btn-outline btn-sm" data-export="docx">📄 .DOCX</button>
+          <button type="button" class="btn btn-outline btn-sm" data-export="pdf">📕 .PDF</button>
+          <button type="button" class="btn btn-outline btn-sm" data-export="txt">📝 .TXT</button>
+        </div>
+      </div>
+
+      <!-- Views Container -->
+      <main class="content-area">
+
+        <!-- VIEW 1: DASHBOARD -->
+        <section id="view-dashboard" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title" data-i18n="dashTitle">My Story</h1>
+              <p class="view-desc" data-i18n="dashDesc">Kelola seluruh draf novel, target kata, dan progres penulisan Anda secara offline.</p>
+            </div>
+            <button type="button" id="openNewNovelBtn" class="btn btn-gold">
+              <span>+</span> <span data-i18n="btnNewNovel">Novel Baru</span>
+            </button>
+          </div>
+
+          <div id="novelGrid" class="novel-grid"></div>
+        </section>
+
+        <!-- VIEW 2: IDENTITAS BUKU -->
+        <section id="view-identity" class="view-section" hidden>
+          <div class="view-header">
+            <div>
+              <h1 class="view-title" data-i18n="idTitle">Identitas Buku</h1>
+              <p class="view-desc" data-i18n="idDesc">Atur sampul, judul, genre, premis, dan blurb pemasaran novel Anda.</p>
+            </div>
+            <button type="button" id="saveIdentityBtn" class="btn btn-gold" data-i18n="btnSaveChanges">Simpan Perubahan</button>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel panel-compact">
+              <label class="field-label" data-i18n="lblCover">Sampul Buku (Cover)</label>
+              <div id="identityCoverPreview" class="cover-preview-box">
+                <span data-i18n="noCoverText">Belum ada gambar cover</span>
+              </div>
+              <input type="file" id="coverFileInput" accept="image/*" class="input-field">
+              <p style="font-size: 0.76rem; color: var(--text-muted); margin-top: 8px;" data-i18n="coverHint">Mendukung JPG, PNG, WebP. Gambar disimpan secara offline di perangkat Anda.</p>
+            </div>
+
+            <div class="panel panel-compact stack-md">
+              <div>
+                <label class="field-label" for="editBookTitle" data-i18n="lblBookTitle">Judul Novel</label>
+                <input type="text" id="editBookTitle" class="input-field">
+              </div>
+              <div class="grid-2">
+                <div>
+                  <label class="field-label" for="editBookGenre" data-i18n="lblGenre">Genre</label>
+                  <select id="editBookGenre" class="select-field"></select>
+                </div>
+                <div>
+                  <label class="field-label" for="editWordGoal" data-i18n="lblWordGoal">Target Jumlah Kata</label>
+                  <input type="number" id="editWordGoal" class="input-field" min="500" step="500">
+                </div>
+              </div>
+              <div>
+                <label class="field-label" for="editBookPremise" data-i18n="lblPremise">Premis Utama</label>
+                <textarea id="editBookPremise" class="textarea-field" rows="3"></textarea>
+              </div>
+              <div>
+                <label class="field-label" for="editBookBlurb" data-i18n="lblBlurb">Blurb / Sinopsis Belakang Sampul</label>
+                <textarea id="editBookBlurb" class="textarea-field" rows="5"></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: DUNIA DAN TOKOH -->
+        <section id="view-world" class="view-section" hidden>
+          <div class="view-header">
+            <div>
+              <h1 class="view-title" data-i18n="worldTitle">Dunia dan Tokoh</h1>
+              <p class="view-desc" data-i18n="worldDesc">Bangun fondasi cerita: profil karakter, peta hubungan antartokoh, dan latar tempat.</p>
+            </div>
+          </div>
+
+          <div class="sub-tabs" role="tablist">
+            <button type="button" class="sub-tab active" data-world-tab="characters" data-i18n="tabChars">👤 Profil Karakter</button>
+            <button type="button" class="sub-tab" data-world-tab="relations" data-i18n="tabRelations">🔗 Hubungan Antartokoh</button>
+            <button type="button" class="sub-tab" data-world-tab="locations" data-i18n="tabLocations">🏰 Latar Tempat</button>
+          </div>
+
+          <!-- Sub-tab: Characters -->
+          <div id="world-tab-characters" class="world-subview">
+            <div class="panel stack-md">
+              <h3 style="color: var(--gold-primary); font-size: 1.05rem;" data-i18n="addCharHeader">Tambah Profil Tokoh</h3>
+              <div class="grid-2">
+                <div>
+                  <label class="field-label" for="charNameInput" data-i18n="charName">Nama Tokoh</label>
+                  <input type="text" id="charNameInput" class="input-field">
+                </div>
+                <div>
+                  <label class="field-label" for="charRoleInput" data-i18n="charRole">Peran & Usia</label>
+                  <input type="text" id="charRoleInput" class="input-field">
+                </div>
+              </div>
+              <div>
+                <label class="field-label" for="charBioInput" data-i18n="charBio">Sifat, Tujuan, & Latar Belakang</label>
+                <textarea id="charBioInput" class="textarea-field" rows="2"></textarea>
+              </div>
+              <div>
+                <button type="button" id="addCharBtn" class="btn btn-gold" data-i18n="btnAddChar">+ Simpan Tokoh</button>
+              </div>
+            </div>
+            <div id="characterList" class="grid-2"></div>
+          </div>
+
+          <!-- Sub-tab: Relations -->
+          <div id="world-tab-relations" class="world-subview" hidden>
+            <div class="panel stack-md">
+              <h3 style="color: var(--gold-primary); font-size: 1.05rem;" data-i18n="addRelHeader">Catat Dinamika Hubungan Antartokoh</h3>
+              <div class="grid-2">
+                <div>
+                  <label class="field-label" for="relCharASelect" data-i18n="relCharA">Tokoh Pertama</label>
+                  <select id="relCharASelect" class="select-field"></select>
+                </div>
+                <div>
+                  <label class="field-label" for="relCharBSelect" data-i18n="relCharB">Tokoh Kedua</label>
+                  <select id="relCharBSelect" class="select-field"></select>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div>
+                  <label class="field-label" for="relTypeInput" data-i18n="relType">Jenis Ikatan</label>
+                  <input type="text" id="relTypeInput" class="input-field">
+                </div>
+                <div>
+                  <label class="field-label" for="relNoteInput" data-i18n="relNote">Catatan Dinamika</label>
+                  <input type="text" id="relNoteInput" class="input-field">
+                </div>
+              </div>
+              <div>
+                <button type="button" id="addRelBtn" class="btn btn-gold" data-i18n="btnAddRel">+ Tambah Hubungan</button>
+              </div>
+            </div>
+            <div id="relationList" class="stack-md"></div>
+          </div>
+
+          <!-- Sub-tab: Locations -->
+          <div id="world-tab-locations" class="world-subview" hidden>
+            <div class="panel stack-md">
+              <h3 style="color: var(--gold-primary); font-size: 1.05rem;" data-i18n="addLocHeader">Tambah Latar Tempat / Dunia</h3>
+              <div class="grid-2">
+                <div>
+                  <label class="field-label" for="locNameInput" data-i18n="locName">Nama Lokasi</label>
+                  <input type="text" id="locNameInput" class="input-field">
+                </div>
+                <div>
+                  <label class="field-label" for="locAtmosInput" data-i18n="locAtmos">Suasana & Iklim</label>
+                  <input type="text" id="locAtmosInput" class="input-field">
+                </div>
+              </div>
+              <div>
+                <label class="field-label" for="locDescInput" data-i18n="locDesc">Detail & Sejarah Lokasi</label>
+                <textarea id="locDescInput" class="textarea-field" rows="2"></textarea>
+              </div>
+              <div>
+                <button type="button" id="addLocBtn" class="btn btn-gold" data-i18n="btnAddLoc">+ Simpan Lokasi</button>
+              </div>
+            </div>
+            <div id="locationList" class="grid-2"></div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: KERANGKA / OUTLINE -->
+        <section id="view-outline" class="view-section" hidden>
+          <div class="view-header">
+            <div>
+              <h1 class="view-title" data-i18n="outTitle">Kerangka / Outline Cerita</h1>
+              <p class="view-desc" data-i18n="outDesc">Susun struktur bab dan rincian adegan (scene) secara teratur.</p>
+            </div>
+            <button type="button" id="addChapterBtn" class="btn btn-gold" data-i18n="btnAddChapter">+ Tambah Bab Baru</button>
+          </div>
+
+          <div id="outlineContainer" class="stack-md"></div>
+        </section>
+
+        <!-- VIEW 5: NASKAH / EDITOR -->
+        <section id="view-editor" class="view-section" hidden>
+          <div class="view-header">
+            <div>
+              <h1 class="view-title" data-i18n="edTitle">Ruang Naskah</h1>
+              <span id="editorActivePath" class="view-desc"></span>
+            </div>
+            <div class="topbar-group">
+              <span class="status-pill" id="liveWordCountBadge">0 kata</span>
+              <button type="button" id="zenModeBtn" class="btn btn-outline btn-sm">🧘 <span data-i18n="btnZen">Mode Fokus</span></button>
+              <button type="button" id="manualSaveBtn" class="btn btn-gold btn-sm">💾 <span data-i18n="btnSave">Simpan</span></button>
+            </div>
+          </div>
+
+          <div id="editorWrapper" class="editor-wrapper">
+            <aside class="panel panel-compact scene-sidebar" style="padding: 16px;">
+              <div class="field-label" style="margin-bottom: 10px;" data-i18n="sceneNavTitle">Daftar Bab & Adegan</div>
+              <div id="editorSceneTree" class="stack-md" style="gap: 8px;"></div>
+            </aside>
+
+            <div class="manuscript-paper">
+              <input type="text" id="activeSceneTitleInput" class="brand-font manuscript-scene-title" placeholder="Judul Adegan...">
+              <textarea id="manuscriptTextarea" class="manuscript-textarea" placeholder="Mulai tuliskan kisah mahakarya Anda di sini..."></textarea>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL: NEW NOVEL -->
+  <div id="newNovelModal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" data-i18n="modalNewTitle">Mulai Novel Baru</h2>
+        <button type="button" class="btn btn-ghost" data-close-modal="newNovelModal">✕</button>
+      </div>
+      <div class="stack-md">
+        <div>
+          <label class="field-label" for="newTitleInput" data-i18n="lblBookTitle">Judul Awal Novel</label>
+          <input type="text" id="newTitleInput" class="input-field">
+        </div>
+        <div>
+          <label class="field-label" for="newGenreInput" data-i18n="lblGenre">Genre</label>
+          <select id="newGenreInput" class="select-field"></select>
+        </div>
+        <div>
+          <label class="field-label" for="newGoalInput" data-i18n="lblWordGoal">Target Kata</label>
+          <input type="number" id="newGoalInput" class="input-field" value="50000" min="1000" step="1000">
+        </div>
+        <div>
+          <label class="field-label" for="newPremiseInput" data-i18n="lblPremise">Premis Singkat</label>
+          <textarea id="newPremiseInput" class="textarea-field" rows="3"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+          <button type="button" class="btn btn-ghost" data-close-modal="newNovelModal" data-i18n="btnCancel">Batal</button>
+          <button type="button" id="createNovelBtn" class="btn btn-gold" data-i18n="btnCreate">Buat Proyek</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AUTH (LOGIN / SIGNUP / GOOGLE) -->
+  <div id="authModal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="authModalHeading" data-i18n="authLoginTitle">Masuk ke My Story</h2>
+        <button type="button" class="btn btn-ghost" data-close-modal="authModal">✕</button>
+      </div>
+
+      <button type="button" id="googleAuthBtn" class="btn btn-outline" style="width: 100%; margin-bottom: 14px; padding: 11px;">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <span data-i18n="btnGoogleAuth">Lanjutkan dengan Akun Google</span>
+      </button>
+
+      <div style="text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 14px;" data-i18n="orEmail">atau gunakan email & kata sandi</div>
+
+      <div class="stack-md" style="gap: 12px;">
+        <div id="signupNameGroup" hidden>
+          <label class="field-label" for="authNameInput" data-i18n="lblPenName">Nama Pena Penulis</label>
+          <input type="text" id="authNameInput" class="input-field">
+        </div>
+        <div>
+          <label class="field-label" for="authEmailInput">Email</label>
+          <input type="email" id="authEmailInput" class="input-field">
+        </div>
+        <div>
+          <label class="field-label" for="authPassInput" data-i18n="lblPassword">Kata Sandi</label>
+          <input type="password" id="authPassInput" class="input-field">
+        </div>
+        <button type="button" id="authSubmitBtn" class="btn btn-gold" style="width: 100%; margin-top: 4px;" data-i18n="btnLogin">Masuk</button>
+      </div>
+
+      <div style="margin-top: 14px; text-align: center; font-size: 0.82rem; color: var(--text-secondary);">
+        <span id="authSwitchPrompt" data-i18n="noAccount">Belum punya akun?</span>
+        <button type="button" id="authSwitchLink" style="background: none; border: none; color: var(--gold-primary); font-weight: 700; cursor: pointer; text-decoration: underline;" data-i18n="linkSignup">Daftar Sekarang</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastBox" class="toast-box" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ========================================================================
+         1. TRANSLATIONS & GENRE DICTIONARIES
+         ======================================================================== */
+      const GENRE_LIST = {
+        id: [
+          "Fantasi",
+          "Romansa",
+          "Misteri & Detektif",
+          "Thriller & Ketegangan",
+          "Fiksi Ilmiah (Sci-Fi)",
+          "Fiksi Sejarah",
+          "Horor & Supranatural",
+          "Drama & Keluarga",
+          "Petualangan & Aksi",
+          "Remaja (Young Adult)",
+          "Sastra & Kontemporer",
+          "Komedi & Satire"
+        ],
+        en: [
+          "Fantasy",
+          "Romance",
+          "Mystery & Detective",
+          "Thriller & Suspense",
+          "Science Fiction (Sci-Fi)",
+          "Historical Fiction",
+          "Horror & Supernatural",
+          "Drama & Family",
+          "Action & Adventure",
+          "Young Adult (YA)",
+          "Literary & Contemporary",
+          "Comedy & Satire"
+        ],
+        es: [
+          "Fantasía",
+          "Romance",
+          "Misterio y Detectives",
+          "Thriller y Suspenso",
+          "Ciencia Ficción",
+          "Ficción Histórica",
+          "Terror y Sobrenatural",
+          "Drama y Familia",
+          "Acción y Aventura",
+          "Juvenil (Young Adult)",
+          "Literaria y Contemporánea",
+          "Comedia y Sátira"
+        ],
+        ja: [
+          "ファンタジー",
+          "ロマンス・恋愛",
+          "ミステリー・推理",
+          "スリラー・サスペンス",
+          "SF（サイエンス・フィクション）",
+          "歴史小説・時代小説",
+          "ホラー・怪奇",
+          "ドラマ・家族",
+          "アクション・冒険",
+          "ヤングアダルト（青春）",
+          "純文学・現代小説",
+          "コメディ・風刺"
+        ]
+      };
+
+      const I18N = {
+        id: {
+          appSubtitle: "Studio Penulis Novel",
+          navWorkspace: "Ruang Kerja",
+          navDashboard: "Dashboard Novel",
+          navActiveBook: "Proyek Aktif",
+          navIdentity: "Identitas Buku",
+          navWorld: "Dunia dan Tokoh",
+          navOutline: "Kerangka / Outline",
+          navEditor: "Naskah / Editor",
+          btnLogin: "Masuk",
+          btnLogout: "Keluar",
+          themeLight: "Tema Terang",
+          themeDark: "Tema Gelap",
+          exportLabel: "Export Naskah & Metadata:",
+          dashTitle: "My Story",
+          dashDesc: "Kelola seluruh draf novel, target kata, dan progres penulisan Anda secara offline.",
+          btnNewNovel: "Novel Baru",
+          emptyDashText: "Belum ada proyek novel. Mulai tulis karya pertama Anda!",
+          idTitle: "Identitas Buku",
+          idDesc: "Atur sampul, judul, genre, premis, dan blurb pemasaran novel Anda.",
+          btnSaveChanges: "Simpan Perubahan",
+          lblCover: "Sampul Buku (Cover)",
+          noCoverText: "Belum ada gambar cover",
+          coverHint: "Mendukung JPG, PNG, WebP. Gambar disimpan secara offline di perangkat Anda.",
+          lblBookTitle: "Judul Novel",
+          lblGenre: "Genre",
+          selectGenrePlaceholder: "-- Pilih Genre Novel --",
+          lblWordGoal: "Target Jumlah Kata",
+          lblPremise: "Premis Utama",
+          lblBlurb: "Blurb / Sinopsis Belakang Sampul",
+          worldTitle: "Dunia dan Tokoh",
+          worldDesc: "Bangun fondasi cerita: profil karakter, peta hubungan antartokoh, dan latar tempat.",
+          tabChars: "👤 Profil Karakter",
+          tabRelations: "🔗 Hubungan Antartokoh",
+          tabLocations: "🏰 Latar Tempat",
+          addCharHeader: "Tambah Profil Tokoh",
+          charName: "Nama Tokoh",
+          charRole: "Peran & Usia",
+          charBio: "Sifat, Tujuan, & Latar Belakang",
+          btnAddChar: "+ Simpan Tokoh",
+          addRelHeader: "Catat Dinamika Hubungan Antartokoh",
+          relCharA: "Tokoh Pertama",
+          relCharB: "Tokoh Kedua",
+          relType: "Jenis Ikatan",
+          relNote: "Catatan Dinamika",
+          btnAddRel: "+ Tambah Hubungan",
+          addLocHeader: "Tambah Latar Tempat / Dunia",
+          locName: "Nama Lokasi",
+          locAtmos: "Suasana & Iklim",
+          locDesc: "Detail & Sejarah Lokasi",
+          btnAddLoc: "+ Simpan Lokasi",
+          outTitle: "Kerangka / Outline Cerita",
+          outDesc: "Susun struktur bab dan rincian adegan (scene) secara teratur.",
+          btnAddChapter: "+ Tambah Bab Baru",
+          edTitle: "Ruang Naskah",
+          btnZen: "Mode Fokus",
+          btnSave: "Simpan",
+          sceneNavTitle: "Daftar Bab & Adegan",
+          modalNewTitle: "Mulai Novel Baru",
+          btnCancel: "Batal",
+          btnCreate: "Buat Proyek",
+          authLoginTitle: "Masuk ke My Story",
+          authSignupTitle: "Daftar Akun Penulis",
+          btnGoogleAuth: "Lanjutkan dengan Akun Google",
+          orEmail: "atau gunakan email & kata sandi",
+          lblPenName: "Nama Pena Penulis",
+          lblPassword: "Kata Sandi",
+          noAccount: "Belum punya akun?",
+          hasAccount: "Sudah punya akun?",
+          linkSignup: "Daftar Sekarang",
+          linkLogin: "Masuk di sini",
+          wordsUnit: "kata",
+          openStudio: "Buka Proyek",
+          deleteNovel: "Hapus"
+        },
+        en: {
+          appSubtitle: "Novelist Writing Studio",
+          navWorkspace: "Workspace",
+          navDashboard: "Novel Dashboard",
+          navActiveBook: "Active Project",
+          navIdentity: "Book Identity",
+          navWorld: "World & Characters",
+          navOutline: "Story Outline",
+          navEditor: "Manuscript / Editor",
+          btnLogin: "Sign In",
+          btnLogout: "Sign Out",
+          themeLight: "Light Theme",
+          themeDark: "Dark Theme",
+          exportLabel: "Export Manuscript & Metadata:",
+          dashTitle: "My Story",
+          dashDesc: "Manage all your novel drafts, word targets, and offline writing progress.",
+          btnNewNovel: "New Novel",
+          emptyDashText: "No novel projects yet. Start writing your first story!",
+          idTitle: "Book Identity",
+          idDesc: "Customize your book cover, title, genre, premise, and back-cover blurb.",
+          btnSaveChanges: "Save Changes",
+          lblCover: "Book Cover",
+          noCoverText: "No cover image uploaded",
+          coverHint: "Supports JPG, PNG, WebP. Saved offline locally on your device.",
+          lblBookTitle: "Novel Title",
+          lblGenre: "Genre",
+          selectGenrePlaceholder: "-- Select Novel Genre --",
+          lblWordGoal: "Target Word Count",
+          lblPremise: "Core Premise",
+          lblBlurb: "Blurb / Back-Cover Synopsis",
+          worldTitle: "World & Characters",
+          worldDesc: "Build your story bible: character profiles, relationships, and world settings.",
+          tabChars: "👤 Character Profiles",
+          tabRelations: "🔗 Relationships",
+          tabLocations: "🏰 Locations",
+          addCharHeader: "Add Character Profile",
+          charName: "Character Name",
+          charRole: "Role & Age",
+          charBio: "Traits, Motivation & Backstory",
+          btnAddChar: "+ Save Character",
+          addRelHeader: "Map Character Relationship",
+          relCharA: "First Character",
+          relCharB: "Second Character",
+          relType: "Relationship Type",
+          relNote: "Dynamic Notes",
+          btnAddRel: "+ Add Relationship",
+          addLocHeader: "Add World Location",
+          locName: "Location Name",
+          locAtmos: "Atmosphere & Climate",
+          locDesc: "Details & Lore",
+          btnAddLoc: "+ Save Location",
+          outTitle: "Story Outline",
+          outDesc: "Organize your chapters and scene breakdowns cleanly.",
+          btnAddChapter: "+ Add Chapter",
+          edTitle: "Manuscript Studio",
+          btnZen: "Zen Focus",
+          btnSave: "Save",
+          sceneNavTitle: "Chapters & Scenes",
+          modalNewTitle: "Start a New Novel",
+          btnCancel: "Cancel",
+          btnCreate: "Create Project",
+          authLoginTitle: "Sign In to My Story",
+          authSignupTitle: "Create Author Account",
+          btnGoogleAuth: "Continue with Google",
+          orEmail: "or use email & password",
+          lblPenName: "Author Pen Name",
+          lblPassword: "Password",
+          noAccount: "Don't have an account?",
+          hasAccount: "Already have an account?",
+          linkSignup: "Sign Up",
+          linkLogin: "Sign In",
+          wordsUnit: "words",
+          openStudio: "Open Project",
+          deleteNovel: "Delete"
+        },
+        es: {
+          appSubtitle: "Estudio para Novelistas",
+          navWorkspace: "Espacio de Trabajo",
+          navDashboard: "Panel de Novelas",
+          navActiveBook: "Proyecto Activo",
+          navIdentity: "Identidad del Libro",
+          navWorld: "Mundo y Personajes",
+          navOutline: "Estructura / Esquema",
+          navEditor: "Manuscrito / Editor",
+          btnLogin: "Entrar",
+          btnLogout: "Salir",
+          themeLight: "Tema Claro",
+          themeDark: "Tema Oscuro",
+          exportLabel: "Exportar Manuscrito:",
+          dashTitle: "My Story",
+          dashDesc: "Gestiona tus borradores, metas de palabras y progreso sin conexión.",
+          btnNewNovel: "Nueva Novela",
+          emptyDashText: "Aún no hay novelas. ¡Empieza tu primera historia!",
+          idTitle: "Identidad del Libro",
+          idDesc: "Edita la portada, título, género, premisa y sinopsis.",
+          btnSaveChanges: "Guardar Cambios",
+          lblCover: "Portada del Libro",
+          noCoverText: "Sin imagen de portada",
+          coverHint: "Soporta JPG, PNG, WebP. Guardado sin conexión.",
+          lblBookTitle: "Título de la Novela",
+          lblGenre: "Género",
+          selectGenrePlaceholder: "-- Seleccionar Género --",
+          lblWordGoal: "Meta de Palabras",
+          lblPremise: "Premisa Principal",
+          lblBlurb: "Sinopsis / Contraportada",
+          worldTitle: "Mundo y Personajes",
+          worldDesc: "Construye perfiles de personajes, relaciones y escenarios.",
+          tabChars: "👤 Personajes",
+          tabRelations: "🔗 Relaciones",
+          tabLocations: "🏰 Escenarios",
+          addCharHeader: "Añadir Personaje",
+          charName: "Nombre",
+          charRole: "Rol y Edad",
+          charBio: "Personalidad y Trasfondo",
+          btnAddChar: "+ Guardar Personaje",
+          addRelHeader: "Añadir Relación",
+          relCharA: "Personaje A",
+          relCharB: "Personaje B",
+          relType: "Tipo de Vínculo",
+          relNote: "Notas",
+          btnAddRel: "+ Añadir Relación",
+          addLocHeader: "Añadir Escenario",
+          locName: "Nombre del Lugar",
+          locAtmos: "Atmósfera",
+          locDesc: "Detalles",
+          btnAddLoc: "+ Guardar Lugar",
+          outTitle: "Esquema de la Historia",
+          outDesc: "Organiza capítulos y escenas.",
+          btnAddChapter: "+ Nuevo Capítulo",
+          edTitle: "Editor de Manuscrito",
+          btnZen: "Modo Zen",
+          btnSave: "Guardar",
+          sceneNavTitle: "Capítulos y Escenas",
+          modalNewTitle: "Crear Nueva Novela",
+          btnCancel: "Cancelar",
+          btnCreate: "Crear Proyecto",
+          authLoginTitle: "Iniciar Sesión",
+          authSignupTitle: "Registrarse",
+          btnGoogleAuth: "Continuar con Google",
+          orEmail: "o usa correo y contraseña",
+          lblPenName: "Seudónimo",
+          lblPassword: "Contraseña",
+          noAccount: "¿No tienes cuenta?",
+          hasAccount: "¿Ya tienes cuenta?",
+          linkSignup: "Regístrate",
+          linkLogin: "Inicia sesión",
+          wordsUnit: "palabras",
+          openStudio: "Abrir",
+          deleteNovel: "Eliminar"
+        },
+        ja: {
+          appSubtitle: "小説家向け執筆スタジオ",
+          navWorkspace: "ワークスペース",
+          navDashboard: "小説ダッシュボード",
+          navActiveBook: "選択中の作品",
+          navIdentity: "作品情報・表紙",
+          navWorld: "世界観と登場人物",
+          navOutline: "プロット・構成",
+          navEditor: "原稿エディタ",
+          btnLogin: "ログイン",
+          btnLogout: "ログアウト",
+          themeLight: "ライトテーマ",
+          themeDark: "ダークテーマ",
+          exportLabel: "原稿エクスポート:",
+          dashTitle: "My Story",
+          dashDesc: "オフライン環境で小説の草稿や目標文字数を管理できます。",
+          btnNewNovel: "新規小説",
+          emptyDashText: "小説プロジェクトはまだありません。最初の物語を書き始めましょう！",
+          idTitle: "作品情報・表紙",
+          idDesc: "表紙画像、タイトル、ジャンル、あらすじを編集します。",
+          btnSaveChanges: "変更を保存",
+          lblCover: "表紙画像",
+          noCoverText: "表紙画像が未設定です",
+          coverHint: "JPG, PNG, WebP対応。端末内にオフライン保存されます。",
+          lblBookTitle: "小説タイトル",
+          lblGenre: "ジャンル",
+          selectGenrePlaceholder: "-- ジャンルを選択 --",
+          lblWordGoal: "目標文字数",
+          lblPremise: "ログライン / 前提",
+          lblBlurb: "あらすじ（紹介文）",
+          worldTitle: "世界観と登場人物",
+          worldDesc: "キャラクター設定、相関関係、舞台設定を構築します。",
+          tabChars: "👤 登場人物",
+          tabRelations: "🔗 人物相関",
+          tabLocations: "🏰 舞台・場所",
+          addCharHeader: "登場人物を追加",
+          charName: "名前",
+          charRole: "役割・年齢",
+          charBio: "性格・目的・背景",
+          btnAddChar: "+ 人物を保存",
+          addRelHeader: "関係性を追加",
+          relCharA: "人物 A",
+          relCharB: "人物 B",
+          relType: "関係の種類",
+          relNote: "メモ",
+          btnAddRel: "+ 関係を追加",
+          addLocHeader: "舞台を追加",
+          locName: "場所の名前",
+          locAtmos: "雰囲気・気候",
+          locDesc: "詳細設定",
+          btnAddLoc: "+ 場所を保存",
+          outTitle: "プロット・構成",
+          outDesc: "章とシーンの構成を整理します。",
+          btnAddChapter: "+ 新しい章を追加",
+          edTitle: "原稿エディタ",
+          btnZen: "集中モード",
+          btnSave: "保存",
+          sceneNavTitle: "章とシーン一覧",
+          modalNewTitle: "新しい小説を作成",
+          btnCancel: "キャンセル",
+          btnCreate: "作成する",
+          authLoginTitle: "My Story にログイン",
+          authSignupTitle: "アカウント登録",
+          btnGoogleAuth: "Googleアカウントで続行",
+          orEmail: "またはメールとパスワード",
+          lblPenName: "ペンネーム",
+          lblPassword: "パスワード",
+          noAccount: "アカウントをお持ちでないですか？",
+          hasAccount: "すでにアカウントをお持ちですか？",
+          linkSignup: "新規登録",
+          linkLogin: "ログイン",
+          wordsUnit: "語",
+          openStudio: "開く",
+          deleteNovel: "削除"
+        }
+      };
+
+      /* ========================================================================
+         2. STATE MANAGEMENT (CLEAN EMPTY INITIALIZATION)
+         ======================================================================== */
+      const STORAGE_KEY = "mystory_pwa_clean_v4";
+
+      let state = {
+        theme: "dark",
+        lang: "id",
+        user: null,
+        customLogoDataUrl: "",
+        activeNovelId: null,
+        activeChapterId: null,
+        activeSceneId: null,
+        novels: []
+      };
+
+      let isSignupMode = false;
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            state = Object.assign({}, state, parsed);
+          }
+          if (!Array.isArray(state.novels)) {
+            state.novels = [];
+          }
+        } catch (err) {
+          state.novels = [];
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) {
+          showToast("Penyimpanan lokal penuh. Perkecil ukuran gambar terlebih dahulu.");
+        }
+      }
+
+      function getDict() {
+        return I18N[state.lang] || I18N.id;
+      }
+
+      function getActiveNovel() {
+        return state.novels.find(function (n) { return n.id === state.activeNovelId; }) || null;
+      }
+
+      function escapeHTML(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function countWords(text) {
+        if (!text || !text.trim()) return 0;
+        return text.trim().split(/\s+/).length;
+      }
+
+      function getNovelTotalWords(novel) {
+        if (!novel || !Array.isArray(novel.chapters)) return 0;
+        let total = 0;
+        novel.chapters.forEach(function (ch) {
+          (ch.scenes || []).forEach(function (sc) {
+            total += countWords(sc.content);
+          });
+        });
+        return total;
+      }
+
+      function showToast(msg) {
+        const box = document.getElementById("toastBox");
+        if (!box) return;
+        const el = document.createElement("div");
+        el.className = "toast";
+        el.textContent = msg;
+        box.appendChild(el);
+        setTimeout(function () { el.remove(); }, 3200);
+      }
+
+      /* ========================================================================
+         3. PWA OFFLINE REGISTRATION
+         ======================================================================== */
+      function initPWA() {
+        try {
+          const manifest = {
+            name: "My Story — Novel Writing Studio",
+            short_name: "My Story",
+            start_url: ".",
+            display: "standalone",
+            background_color: "#09090B",
+            theme_color: "#D4AF37",
+            description: "Aplikasi PWA khusus penulis novel dengan dukungan offline."
+          };
+          const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+          const link = document.createElement("link");
+          link.rel = "manifest";
+          link.href = URL.createObjectURL(manifestBlob);
+          document.head.appendChild(link);
+        } catch (err) {}
+
+        if ("serviceWorker" in navigator) {
+          try {
+            const swCode = [
+              "const CACHE_NAME = 'mystory-offline-v4';",
+              "self.addEventListener('install', (e) => self.skipWaiting());",
+              "self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));",
+              "self.addEventListener('fetch', (e) => {",
+              "  e.respondWith(caches.match(e.request).then((c) => c || fetch(e.request).then((r) => {",
+              "    if (e.request.method === 'GET' && r.status === 200) {",
+              "      const clone = r.clone();",
+              "      caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));",
+              "    }",
+              "    return r;",
+              "  }).catch(() => c)));",
+              "});"
+            ].join("\n");
+            const swBlob = new Blob([swCode], { type: "application/javascript" });
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(function () {});
+          } catch (err) {}
+        }
+
+        updateOnlineStatus();
+        window.addEventListener("online", updateOnlineStatus);
+        window.addEventListener("offline", updateOnlineStatus);
+      }
+
+      function updateOnlineStatus() {
+        const dot = document.getElementById("statusDot");
+        const text = document.getElementById("statusText");
+        if (!dot || !text) return;
+        if (navigator.onLine) {
+          dot.classList.remove("offline");
+          text.textContent = "Online • Tersimpan Offline";
+        } else {
+          dot.classList.add("offline");
+          text.textContent = "Mode Offline Aktif";
+        }
+      }
+
+      /* ========================================================================
+         4. THEME, LANGUAGE & GENRE DROPDOWNS
+         ======================================================================== */
+      function populateGenreSelect(selectId, selectedValue) {
+        const selectEl = document.getElementById(selectId);
+        if (!selectEl) return;
+        const dict = getDict();
+        const genres = GENRE_LIST[state.lang] || GENRE_LIST.id;
+
+        let html = `<option value="">${escapeHTML(dict.selectGenrePlaceholder)}</option>`;
+        html += genres.map(function (g) {
+          return `<option value="${escapeHTML(g)}">${escapeHTML(g)}</option>`;
+        }).join("");
+
+        if (selectedValue && genres.indexOf(selectedValue) === -1) {
+          html += `<option value="${escapeHTML(selectedValue)}">${escapeHTML(selectedValue)}</option>`;
+        }
+
+        selectEl.innerHTML = html;
+        selectEl.value = selectedValue || "";
+      }
+
+      function applyTheme() {
+        document.documentElement.setAttribute("data-theme", state.theme);
+        const btn = document.getElementById("themeToggleBtn");
+        const dict = getDict();
+        if (btn) {
+          btn.innerHTML = state.theme === "dark"
+            ? `☀️ <span>${escapeHTML(dict.themeLight)}</span>`
+            : `🌙 <span>${escapeHTML(dict.themeDark)}</span>`;
+        }
+      }
+
+      function applyLanguage() {
+        const dict = getDict();
+        document.documentElement.lang = state.lang;
+        document.getElementById("langSelect").value = state.lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(function (el) {
+          const key = el.getAttribute("data-i18n");
+          if (dict[key]) {
+            el.textContent = dict[key];
+          }
+        });
+
+        populateGenreSelect("newGenreInput", document.getElementById("newGenreInput").value);
+        const novel = getActiveNovel();
+        populateGenreSelect("editBookGenre", novel ? novel.genre : "");
+        applyTheme();
+      }
+
+      /* ========================================================================
+         5. NAVIGATION & PROJECT CONTEXT
+         ======================================================================== */
+      function toggleDrawer(open) {
+        document.getElementById("appDrawer").classList.toggle("open", open);
+        document.getElementById("drawerOverlay").classList.toggle("open", open);
+      }
+
+      function switchView(viewName) {
+        const novel = getActiveNovel();
+        if (viewName !== "dashboard" && !novel) {
+          showToast("Pilih atau buat proyek novel terlebih dahulu.");
+          return;
+        }
+
+        document.querySelectorAll(".view-section").forEach(function (sec) {
+          sec.hidden = true;
+        });
+
+        const target = document.getElementById("view-" + viewName);
+        if (target) target.hidden = false;
+
+        document.querySelectorAll(".nav-item").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-view") === viewName);
+        });
+
+        toggleDrawer(false);
+
+        if (viewName === "dashboard") renderDashboard();
+        if (viewName === "identity") renderIdentity();
+        if (viewName === "world") renderWorld();
+        if (viewName === "outline") renderOutline();
+        if (viewName === "editor") renderEditor();
+      }
+
+      function syncProjectContextUI() {
+        const novel = getActiveNovel();
+        const badge = document.getElementById("activeBookBadge");
+        const exportBar = document.getElementById("exportBar");
+        const reqBtns = document.querySelectorAll(".project-req");
+
+        if (novel) {
+          badge.textContent = "📖 " + novel.title;
+          reqBtns.forEach(function (b) { b.disabled = false; });
+          exportBar.classList.remove("hidden");
+          const words = getNovelTotalWords(novel);
+          const dict = getDict();
+          document.getElementById("exportMetaSummary").textContent =
+            `${novel.title} • ${novel.genre} (${words.toLocaleString()} ${dict.wordsUnit})`;
+        } else {
+          badge.textContent = "—";
+          reqBtns.forEach(function (b) { b.disabled = true; });
+          exportBar.classList.add("hidden");
+        }
+      }
+
+      function openModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("open");
+      }
+
+      function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove("open");
+      }
+
+      /* ========================================================================
+         6. LOGO & AUTHENTICATION
+         ======================================================================== */
+      function renderBrandLogo() {
+        const container = document.getElementById("brandLogoContainer");
+        if (container && state.customLogoDataUrl) {
+          container.innerHTML = `<img src="${state.customLogoDataUrl}" alt="My Story Logo">`;
+        }
+      }
+
+      function renderAuthHeader() {
+        const nameEl = document.getElementById("userNameDisplay");
+        const emailEl = document.getElementById("userEmailDisplay");
+        const btn = document.getElementById("authActionBtn");
+        const dict = getDict();
+
+        if (state.user) {
+          nameEl.textContent = state.user.name;
+          emailEl.textContent = state.user.email;
+          btn.textContent = dict.btnLogout;
+        } else {
+          nameEl.textContent = "Penulis Tamu";
+          emailEl.textContent = "Mode Offline Lokal";
+          btn.textContent = dict.btnLogin;
+        }
+      }
+
+      function updateAuthModalUI() {
+        const dict = getDict();
+        document.getElementById("authModalHeading").textContent = isSignupMode ? dict.authSignupTitle : dict.authLoginTitle;
+        document.getElementById("signupNameGroup").hidden = !isSignupMode;
+        document.getElementById("authSubmitBtn").textContent = isSignupMode ? dict.linkSignup : dict.btnLogin;
+        document.getElementById("authSwitchPrompt").textContent = isSignupMode ? dict.hasAccount : dict.noAccount;
+        document.getElementById("authSwitchLink").textContent = isSignupMode ? dict.linkLogin : dict.linkSignup;
+      }
+
+      /* ========================================================================
+         7. RENDERERS: DASHBOARD, IDENTITY, WORLD, OUTLINE, EDITOR
+         ======================================================================== */
+      function renderDashboard() {
+        const grid = document.getElementById("novelGrid");
+        const dict = getDict();
+
+        if (state.novels.length === 0) {
+          grid.innerHTML = `
+            <div class="panel empty-state-panel">
+              <div class="empty-state-icon">✒️</div>
+              <p class="empty-state-text">${escapeHTML(dict.emptyDashText)}</p>
+              <button type="button" class="btn btn-gold" data-action="open-new-novel">+ ${escapeHTML(dict.btnNewNovel)}</button>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = state.novels.map(function (novel) {
+          const words = getNovelTotalWords(novel);
+          const goal = novel.wordGoal || 50000;
+          const pct = Math.min(100, Math.round((words / goal) * 100));
+          const isCurrent = novel.id === state.activeNovelId;
+
+          const coverHtml = novel.coverDataUrl
+            ? `<img src="${novel.coverDataUrl}" alt="${escapeHTML(novel.title)}">`
+            : `<div class="novel-cover-placeholder">
+                 <div style="font-size: 2.2rem; margin-bottom: 6px;">📖</div>
+                 <div class="brand-font" style="color: #D4AF37; font-size: 0.95rem; font-weight: 700;">${escapeHTML(novel.title)}</div>
+               </div>`;
+
+          return `
+            <article class="novel-card ${isCurrent ? "active-project" : ""}">
+              <div class="novel-cover">
+                ${coverHtml}
+                <span class="genre-badge">${escapeHTML(novel.genre)}</span>
+              </div>
+              <div class="novel-card-body">
+                <h3 class="novel-card-title">${escapeHTML(novel.title)}</h3>
+                <p class="novel-card-premise">${escapeHTML(novel.premise || "Belum ada premis singkat.")}</p>
+
+                <div style="margin-top: auto; padding-top: 8px;">
+                  <div class="progress-meta">
+                    <span>${words.toLocaleString()} / ${goal.toLocaleString()} ${escapeHTML(dict.wordsUnit)}</span>
+                    <span class="progress-pct">${pct}%</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" style="width: ${pct}%;"></div>
+                  </div>
+                </div>
+
+                <div class="card-actions">
+                  <button type="button" class="btn btn-gold btn-sm" style="flex: 1;" data-select-novel="${novel.id}" data-target-view="editor">${escapeHTML(dict.openStudio)}</button>
+                  <button type="button" class="btn btn-outline btn-sm" data-select-novel="${novel.id}" data-target-view="identity" title="Identitas">🪪</button>
+                  <button type="button" class="btn btn-danger btn-sm" data-delete-novel="${novel.id}" title="${escapeHTML(dict.deleteNovel)}">🗑️</button>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      function renderIdentity() {
+        const novel = getActiveNovel();
+        if (!novel) return;
+
+        document.getElementById("editBookTitle").value = novel.title || "";
+        populateGenreSelect("editBookGenre", novel.genre || "");
+        document.getElementById("editWordGoal").value = novel.wordGoal || 50000;
+        document.getElementById("editBookPremise").value = novel.premise || "";
+        document.getElementById("editBookBlurb").value = novel.blurb || "";
+
+        const preview = document.getElementById("identityCoverPreview");
+        const dict = getDict();
+        if (novel.coverDataUrl) {
+          preview.innerHTML = `<img src="${novel.coverDataUrl}" alt="Cover">`;
+        } else {
+          preview.innerHTML = `<span>${escapeHTML(dict.noCoverText)}</span>`;
+        }
+      }
+
+      function renderWorld() {
+        const novel = getActiveNovel();
+        if (!novel) return;
+
+        const charList = document.getElementById("characterList");
+        charList.innerHTML = (novel.characters || []).map(function (c) {
+          return `
+            <div class="panel panel-compact">
+              <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
+                <h4 style="color: var(--gold-primary); font-size: 1.05rem;">${escapeHTML(c.name)}</h4>
+                <button type="button" class="btn btn-danger btn-xs" data-remove-char="${c.id}">✕</button>
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px;">${escapeHTML(c.role)}</div>
+              <p style="font-size: 0.88rem; color: var(--text-secondary);">${escapeHTML(c.bio)}</p>
+            </div>
+          `;
+        }).join("") || `<p style="color: var(--text-muted);">Belum ada profil tokoh ditambahkan.</p>`;
+
+        const optionsHtml = (novel.characters || []).map(function (c) {
+          return `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)}</option>`;
+        }).join("");
+        document.getElementById("relCharASelect").innerHTML = optionsHtml || `<option value="">(Tambah tokoh dulu)</option>`;
+        document.getElementById("relCharBSelect").innerHTML = optionsHtml || `<option value="">(Tambah tokoh dulu)</option>`;
+
+        const relList = document.getElementById("relationList");
+        relList.innerHTML = (novel.relations || []).map(function (r) {
+          return `
+            <div class="panel panel-compact" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <div>
+                <div style="font-weight: 700; color: var(--gold-primary); font-size: 0.95rem;">
+                  ${escapeHTML(r.charA)} <span style="color: var(--text-muted);">⟷</span> ${escapeHTML(r.charB)}
+                  <span class="relation-tag">${escapeHTML(r.type)}</span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">${escapeHTML(r.note)}</p>
+              </div>
+              <button type="button" class="btn btn-danger btn-xs" data-remove-rel="${r.id}">Hapus</button>
+            </div>
+          `;
+        }).join("") || `<p style="color: var(--text-muted);">Belum ada hubungan antartokoh dicatat.</p>`;
+
+        const locList = document.getElementById("locationList");
+        locList.innerHTML = (novel.locations || []).map(function (l) {
+          return `
+            <div class="panel panel-compact">
+              <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
+                <h4 style="color: var(--gold-primary); font-size: 1.05rem;">🏰 ${escapeHTML(l.name)}</h4>
+                <button type="button" class="btn btn-danger btn-xs" data-remove-loc="${l.id}">✕</button>
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">${escapeHTML(l.atmos)}</div>
+              <p style="font-size: 0.88rem; color: var(--text-secondary);">${escapeHTML(l.desc)}</p>
+            </div>
+          `;
+        }).join("") || `<p style="color: var(--text-muted);">Belum ada latar tempat ditambahkan.</p>`;
+      }
+
+      function renderOutline() {
+        const novel = getActiveNovel();
+        if (!novel) return;
+        const container = document.getElementById("outlineContainer");
+        const dict = getDict();
+
+        container.innerHTML = novel.chapters.map(function (chap) {
+          const scenesHtml = (chap.scenes || []).map(function (sc) {
+            return `
+              <div class="scene-row">
+                <div class="scene-row-inputs">
+                  <input type="text" class="scene-inline-title" value="${escapeHTML(sc.title)}" data-chap="${chap.id}" data-scene="${sc.id}" data-field="title">
+                  <input type="text" class="scene-inline-summary" value="${escapeHTML(sc.summary || "")}" placeholder="Ringkasan singkat adegan..." data-chap="${chap.id}" data-scene="${sc.id}" data-field="summary">
+                </div>
+                <div class="topbar-group">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">${countWords(sc.content)} ${escapeHTML(dict.wordsUnit)}</span>
+                  <button type="button" class="btn btn-outline btn-xs" data-open-scene="${chap.id}:${sc.id}">✒️ Tulis</button>
+                  <button type="button" class="btn btn-danger btn-xs" data-del-scene="${chap.id}:${sc.id}">✕</button>
+                </div>
+              </div>
+            `;
+          }).join("");
+
+          return `
+            <div class="panel panel-compact">
+              <div class="chapter-header-row">
+                <input type="text" class="brand-font chapter-title-input" value="${escapeHTML(chap.title)}" data-chap-title="${chap.id}">
+                <div class="topbar-group">
+                  <button type="button" class="btn btn-outline btn-xs" data-add-scene="${chap.id}">+ Adegan</button>
+                  <button type="button" class="btn btn-danger btn-xs" data-del-chap="${chap.id}">🗑️</button>
+                </div>
+              </div>
+              <div class="stack-md" style="gap: 10px;">
+                ${scenesHtml || '<p style="font-size: 0.84rem; color: var(--text-muted);">Belum ada adegan di bab ini.</p>'}
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderEditor() {
+        const novel = getActiveNovel();
+        if (!novel) return;
+
+        let chap = novel.chapters.find(function (c) { return c.id === state.activeChapterId; }) || novel.chapters[0];
+        if (!chap) return;
+        state.activeChapterId = chap.id;
+
+        let scene = chap.scenes.find(function (s) { return s.id === state.activeSceneId; }) || chap.scenes[0];
+        if (!scene) return;
+        state.activeSceneId = scene.id;
+
+        const tree = document.getElementById("editorSceneTree");
+        tree.innerHTML = novel.chapters.map(function (c) {
+          const btns = (c.scenes || []).map(function (s) {
+            return `<button type="button" class="scene-tree-btn ${s.id === scene.id ? "active" : ""}" data-open-scene="${c.id}:${s.id}">• ${escapeHTML(s.title)}</button>`;
+          }).join("");
+          return `
+            <div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--gold-primary); padding: 4px 6px;">${escapeHTML(c.title)}</div>
+              ${btns}
+            </div>
+          `;
+        }).join("");
+
+        document.getElementById("editorActivePath").textContent = `${chap.title} › ${scene.title}`;
+        document.getElementById("activeSceneTitleInput").value = scene.title;
+        document.getElementById("manuscriptTextarea").value = scene.content || "";
+        updateEditorWordCounter();
+      }
+
+      function updateEditorWordCounter() {
+        const text = document.getElementById("manuscriptTextarea").value;
+        const dict = getDict();
+        document.getElementById("liveWordCountBadge").textContent = `${countWords(text).toLocaleString()} ${dict.wordsUnit}`;
+      }
+
+      function renderAll() {
+        renderBrandLogo();
+        renderAuthHeader();
+        syncProjectContextUI();
+        renderDashboard();
+        if (getActiveNovel()) {
+          renderIdentity();
+          renderWorld();
+          renderOutline();
+          renderEditor();
+        }
+      }
+
+      /* ========================================================================
+         8. EXPORT HANDLERS (.DOCX, .PDF, .TXT)
+         ======================================================================== */
+      function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 150);
+      }
+
+      function exportManuscript(format) {
+        const novel = getActiveNovel();
+        if (!novel) return;
+
+        const safeFilename = (novel.title || "MyStory").replace(/[^a-z0-9_\-]/gi, "_");
+        const authorName = state.user ? state.user.name : "Penulis My Story";
+
+        if (format === "txt") {
+          let out = `JUDUL: ${novel.title.toUpperCase()}\n`;
+          out += `PENULIS: ${authorName}\n`;
+          out += `GENRE: ${novel.genre}\n`;
+          out += `PREMIS: ${novel.premise || "-"}\n`;
+          out += `BLURB:\n${novel.blurb || "-"}\n`;
+          out += `${"=".repeat(50)}\n\n`;
+
+          novel.chapters.forEach(function (ch) {
+            out += `*** ${ch.title.toUpperCase()} ***\n\n`;
+            (ch.scenes || []).forEach(function (sc) {
+              out += `[${sc.title}]\n${sc.content || ""}\n\n`;
+            });
+          });
+
+          triggerDownload(new Blob([out], { type: "text/plain;charset=utf-8" }), `${safeFilename}.txt`);
+          showToast("Berhasil mengunduh naskah .TXT");
+          return;
+        }
+
+        if (format === "docx") {
+          const coverImgTag = novel.coverDataUrl
+            ? `<p style="text-align:center;"><img src="${novel.coverDataUrl}" style="max-width:280px; height:auto;" /></p>`
+            : "";
+
+          let htmlBody = [
+            "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>",
+            `<head><meta charset='utf-8'><title>${escapeHTML(novel.title)}</title></head>`,
+            "<body style='font-family: Georgia, serif; line-height: 1.8;'>",
+            "<div style='text-align:center; page-break-after: always;'>",
+            coverImgTag,
+            `<h1 style='font-size: 26pt; color: #9E7B1C;'>${escapeHTML(novel.title)}</h1>`,
+            `<p><strong>Penulis:</strong> ${escapeHTML(authorName)} | <strong>Genre:</strong> ${escapeHTML(novel.genre)}</p>`,
+            `<p><em>${escapeHTML(novel.premise || "")}</em></p>`,
+            "<hr/><h3>Blurb</h3>",
+            `<p>${escapeHTML(novel.blurb || "")}</p>`,
+            "</div>"
+          ].join("");
+
+          novel.chapters.forEach(function (ch) {
+            htmlBody += `<h2 style="page-break-before: always; color: #9E7B1C;">${escapeHTML(ch.title)}</h2>`;
+            (ch.scenes || []).forEach(function (sc) {
+              htmlBody += `<h4>${escapeHTML(sc.title)}</h4>`;
+              const paragraphs = (sc.content || "").split(/\n+/).map(function (p) {
+                return `<p style="text-indent: 24pt;">${escapeHTML(p)}</p>`;
+              }).join("");
+              htmlBody += paragraphs;
+            });
+          });
+
+          htmlBody += "</body></html>";
+          const blob = new Blob(["\ufeff", htmlBody], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+          triggerDownload(blob, `${safeFilename}.docx`);
+          showToast("Berhasil mengunduh naskah .DOCX");
+          return;
+        }
+
+        if (format === "pdf") {
+          if (window.jspdf && window.jspdf.jsPDF) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: "pt", format: "a4" });
+            const margin = 52;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const maxWidth = pageWidth - margin * 2;
+            let y = 70;
+
+            if (novel.coverDataUrl) {
+              try {
+                doc.addImage(novel.coverDataUrl, "JPEG", (pageWidth - 150) / 2, y, 150, 210);
+                y += 235;
+              } catch (err) {}
+            }
+
+            doc.setFont("times", "bold");
+            doc.setFontSize(22);
+            doc.text(novel.title, pageWidth / 2, y, { align: "center" });
+            y += 24;
+
+            doc.setFont("times", "italic");
+            doc.setFontSize(12);
+            doc.text(`${novel.genre} — Oleh ${authorName}`, pageWidth / 2, y, { align: "center" });
+            y += 32;
+
+            if (novel.blurb) {
+              doc.setFont("times", "normal");
+              doc.setFontSize(11);
+              const blurbLines = doc.splitTextToSize("Sinopsis: " + novel.blurb, maxWidth);
+              doc.text(blurbLines, margin, y);
+            }
+
+            novel.chapters.forEach(function (ch) {
+              doc.addPage();
+              y = 65;
+              doc.setFont("times", "bold");
+              doc.setFontSize(16);
+              doc.text(ch.title, margin, y);
+              y += 28;
+
+              (ch.scenes || []).forEach(function (sc) {
+                if (y > 740) { doc.addPage(); y = 65; }
+                doc.setFont("times", "bold");
+                doc.setFontSize(12);
+                doc.text(sc.title, margin, y);
+                y += 20;
+
+                doc.setFont("times", "normal");
+                doc.setFontSize(11.5);
+                const lines = doc.splitTextToSize(sc.content || "", maxWidth);
+                lines.forEach(function (line) {
+                  if (y > 765) { doc.addPage(); y = 65; }
+                  doc.text(line, margin, y);
+                  y += 17;
+                });
+                y += 16;
+              });
+            });
+
+            doc.save(`${safeFilename}.pdf`);
+            showToast("Berhasil mengunduh naskah .PDF");
+          } else {
+            window.print();
+          }
+        }
+      }
+
+      /* ========================================================================
+         9. CENTRALIZED EVENT LISTENERS
+         ======================================================================== */
+      function bindEvents() {
+        // Mobile Drawer
+        document.getElementById("mobileMenuBtn").addEventListener("click", function () { toggleDrawer(true); });
+        document.getElementById("drawerOverlay").addEventListener("click", function () { toggleDrawer(false); });
+
+        // Custom Brand Logo Upload
+        document.getElementById("brandLogoContainer").addEventListener("click", function () {
+          document.getElementById("customLogoInput").click();
+        });
+        document.getElementById("customLogoInput").addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            state.customLogoDataUrl = ev.target.result;
+            saveState();
+            renderBrandLogo();
+            showToast("Logo aplikasi berhasil diperbarui!");
+          };
+          reader.readAsDataURL(file);
+        });
+
+        // Navigation Drawer Views
+        document.querySelectorAll(".nav-item[data-view]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            switchView(btn.getAttribute("data-view"));
+          });
+        });
+
+        // Theme & Language
+        document.getElementById("themeToggleBtn").addEventListener("click", function () {
+          state.theme = state.theme === "dark" ? "light" : "dark";
+          saveState();
+          applyTheme();
+        });
+
+        document.getElementById("langSelect").addEventListener("change", function (e) {
+          state.lang = e.target.value;
+          saveState();
+          applyLanguage();
+          renderAll();
+        });
+
+        // Export Bar
+        document.querySelectorAll("[data-export]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            exportManuscript(btn.getAttribute("data-export"));
+          });
+        });
+
+        // Modals Close
+        document.querySelectorAll("[data-close-modal]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            closeModal(btn.getAttribute("data-close-modal"));
+          });
+        });
+
+        // New Novel Modal & Creation
+        function handleOpenNewNovel() {
+          document.getElementById("newTitleInput").value = "";
+          populateGenreSelect("newGenreInput", "");
+          document.getElementById("newPremiseInput").value = "";
+          document.getElementById("newGoalInput").value = "50000";
+          openModal("newNovelModal");
+        }
+
+        document.getElementById("openNewNovelBtn").addEventListener("click", handleOpenNewNovel);
+
+        document.getElementById("createNovelBtn").addEventListener("click", function () {
+          const title = document.getElementById("newTitleInput").value.trim();
+          const genre = document.getElementById("newGenreInput").value.trim();
+          const premise = document.getElementById("newPremiseInput").value.trim();
+          const wordGoal = parseInt(document.getElementById("newGoalInput").value, 10) || 50000;
+
+          if (!title) {
+            showToast("Judul awal novel wajib diisi.");
+            return;
+          }
+          if (!genre) {
+            showToast("Silakan pilih genre novel terlebih dahulu.");
+            return;
+          }
+
+          const chapId = "chap_" + Date.now();
+          const sceneId = "scene_" + (Date.now() + 1);
+          const newNovel = {
+            id: "novel_" + Date.now(),
+            title: title,
+            genre: genre,
+            wordGoal: wordGoal,
+            premise: premise,
+            blurb: "",
+            coverDataUrl: "",
+            characters: [],
+            relations: [],
+            locations: [],
+            chapters: [
+              {
+                id: chapId,
+                title: "Bab 1",
+                scenes: [{ id: sceneId, title: "Adegan 1", summary: "", content: "" }]
+              }
+            ]
+          };
+
+          state.novels.unshift(newNovel);
+          state.activeNovelId = newNovel.id;
+          state.activeChapterId = chapId;
+          state.activeSceneId = sceneId;
+          saveState();
+          closeModal("newNovelModal");
+          syncProjectContextUI();
+          renderDashboard();
+          showToast(`Novel "${title}" berhasil dibuat!`);
+        });
+
+        // Dashboard Delegated Actions
+        document.getElementById("novelGrid").addEventListener("click", function (e) {
+          const emptyBtn = e.target.closest("[data-action='open-new-novel']");
+          if (emptyBtn) {
+            handleOpenNewNovel();
+            return;
+          }
+
+          const selectBtn = e.target.closest("[data-select-novel]");
+          if (selectBtn) {
+            const id = selectBtn.getAttribute("data-select-novel");
+            const targetView = selectBtn.getAttribute("data-target-view") || "editor";
+            const novel = state.novels.find(function (n) { return n.id === id; });
+            if (!novel) return;
+            state.activeNovelId = novel.id;
+            if (novel.chapters.length > 0) {
+              state.activeChapterId = novel.chapters[0].id;
+              if (novel.chapters[0].scenes.length > 0) {
+                state.activeSceneId = novel.chapters[0].scenes[0].id;
+              }
+            }
+            saveState();
+            syncProjectContextUI();
+            switchView(targetView);
+            return;
+          }
+
+          const delBtn = e.target.closest("[data-delete-novel]");
+          if (delBtn) {
+            const id = delBtn.getAttribute("data-delete-novel");
+            state.novels = state.novels.filter(function (n) { return n.id !== id; });
+            if (state.activeNovelId === id) {
+              state.activeNovelId = state.novels[0] ? state.novels[0].id : null;
+            }
+            saveState();
+            syncProjectContextUI();
+            renderDashboard();
+            showToast("Proyek novel dihapus.");
+          }
+        });
+
+        // Auth Modal & Actions
+        document.getElementById("authActionBtn").addEventListener("click", function () {
+          if (state.user) {
+            state.user = null;
+            saveState();
+            renderAuthHeader();
+            showToast("Anda telah keluar dari akun.");
+          } else {
+            isSignupMode = false;
+            updateAuthModalUI();
+            openModal("authModal");
+          }
+        });
+
+        document.getElementById("authSwitchLink").addEventListener("click", function () {
+          isSignupMode = !isSignupMode;
+          updateAuthModalUI();
+        });
+
+        document.getElementById("googleAuthBtn").addEventListener("click", function () {
+          const googleEmail = "penulis.kreatif@gmail.com";
+          state.user = { name: "Penulis Google", email: googleEmail, provider: "google" };
+          saveState();
+          renderAuthHeader();
+          closeModal("authModal");
+          showToast("Terhubung dengan Akun Google (" + googleEmail + ")");
+        });
+
+        document.getElementById("authSubmitBtn").addEventListener("click", function () {
+          const email = document.getElementById("authEmailInput").value.trim();
+          const pass = document.getElementById("authPassInput").value.trim();
+          const name = document.getElementById("authNameInput").value.trim();
+
+          if (!email || email.indexOf("@") === -1) {
+            showToast("Masukkan alamat email yang valid.");
+            return;
+          }
+          if (pass.length < 6) {
+            showToast("Kata sandi minimal 6 karakter.");
+            return;
+          }
+
+          const displayName = isSignupMode && name ? name : email.split("@")[0];
+          state.user = { name: displayName, email: email, provider: "email" };
+          saveState();
+          renderAuthHeader();
+          closeModal("authModal");
+          showToast(`Selamat datang, ${displayName}!`);
+        });
+
+        // Book Identity
+        document.getElementById("coverFileInput").addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          const novel = getActiveNovel();
+          if (!file || !novel) return;
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            novel.coverDataUrl = ev.target.result;
+            saveState();
+            renderIdentity();
+            showToast("Gambar cover berhasil diperbarui!");
+          };
+          reader.readAsDataURL(file);
+        });
+
+        document.getElementById("saveIdentityBtn").addEventListener("click", function () {
+          const novel = getActiveNovel();
+          if (!novel) return;
+          novel.title = document.getElementById("editBookTitle").value.trim() || novel.title;
+          novel.genre = document.getElementById("editBookGenre").value.trim() || novel.genre;
+          novel.wordGoal = parseInt(document.getElementById("editWordGoal").value, 10) || 50000;
+          novel.premise = document.getElementById("editBookPremise").value.trim();
+          novel.blurb = document.getElementById("editBookBlurb").value.trim();
+          saveState();
+          syncProjectContextUI();
+          showToast("Identitas buku tersimpan!");
+        });
+
+        // World & Characters Tabs
+        document.querySelectorAll(".sub-tab[data-world-tab]").forEach(function (tabBtn) {
+          tabBtn.addEventListener("click", function () {
+            const tabName = tabBtn.getAttribute("data-world-tab");
+            document.querySelectorAll(".world-subview").forEach(function (v) { v.hidden = true; });
+            document.getElementById("world-tab-" + tabName).hidden = false;
+            document.querySelectorAll(".sub-tab").forEach(function (b) { b.classList.remove("active"); });
+            tabBtn.classList.add("active");
+          });
+        });
+
+        document.getElementById("addCharBtn").addEventListener("click", function () {
+          const novel = getActiveNovel();
+          const name = document.getElementById("charNameInput").value.trim();
+          const role = document.getElementById("charRoleInput").value.trim();
+          const bio = document.getElementById("charBioInput").value.trim();
+          if (!novel || !name) {
+            showToast("Nama tokoh wajib diisi.");
+            return;
+          }
+          novel.characters.push({ id: "c_" + Date.now(), name: name, role: role, bio: bio });
+          document.getElementById("charNameInput").value = "";
+          document.getElementById("charRoleInput").value = "";
+          document.getElementById("charBioInput").value = "";
+          saveState();
+          renderWorld();
+          showToast("Profil tokoh disimpan.");
+        });
+
+        document.getElementById("addRelBtn").addEventListener("click", function () {
+          const novel = getActiveNovel();
+          const charA = document.getElementById("relCharASelect").value;
+          const charB = document.getElementById("relCharBSelect").value;
+          const type = document.getElementById("relTypeInput").value.trim();
+          const note = document.getElementById("relNoteInput").value.trim();
+          if (!novel || !charA || !charB || !type) {
+            showToast("Lengkapi pilihan tokoh dan jenis ikatan.");
+            return;
+          }
+          novel.relations.push({ id: "r_" + Date.now(), charA: charA, charB: charB, type: type, note: note });
+          document.getElementById("relTypeInput").value = "";
+          document.getElementById("relNoteInput").value = "";
+          saveState();
+          renderWorld();
+          showToast("Hubungan antartokoh ditambahkan.");
+        });
+
+        document.getElementById("addLocBtn").addEventListener("click", function () {
+          const novel = getActiveNovel();
+          const name = document.getElementById("locNameInput").value.trim();
+          const atmos = document.getElementById("locAtmosInput").value.trim();
+          const desc = document.getElementById("locDescInput").value.trim();
+          if (!novel || !name) {
+            showToast("Nama lokasi wajib diisi.");
+            return;
+          }
+          novel.locations.push({ id: "l_" + Date.now(), name: name, atmos: atmos, desc: desc });
+          document.getElementById("locNameInput").value = "";
+          document.getElementById("locAtmosInput").value = "";
+          document.getElementById("locDescInput").value = "";
+          saveState();
+          renderWorld();
+          showToast("Latar tempat disimpan.");
+        });
+
+        // World Delegated Delete Buttons
+        document.getElementById("view-world").addEventListener("click", function (e) {
+          const novel = getActiveNovel();
+          if (!novel) return;
+
+          const charBtn = e.target.closest("[data-remove-char]");
+          if (charBtn) {
+            const id = charBtn.getAttribute("data-remove-char");
+            novel.characters = novel.characters.filter(function (c) { return c.id !== id; });
+            saveState();
+            renderWorld();
+            return;
+          }
+
+          const relBtn = e.target.closest("[data-remove-rel]");
+          if (relBtn) {
+            const id = relBtn.getAttribute("data-remove-rel");
+            novel.relations = novel.relations.filter(function (r) { return r.id !== id; });
+            saveState();
+            renderWorld();
+            return;
+          }
+
+          const locBtn = e.target.closest("[data-remove-loc]");
+          if (locBtn) {
+            const id = locBtn.getAttribute("data-remove-loc");
+            novel.locations = novel.locations.filter(function (l) { return l.id !== id; });
+            saveState();
+            renderWorld();
+          }
+        });
+
+        // Outline Add Chapter & Delegated Actions
+        document.getElementById("addChapterBtn").addEventListener("click", function () {
+          const novel = getActiveNovel();
+          if (!novel) return;
+          const num = novel.chapters.length + 1;
+          const chapId = "chap_" + Date.now();
+          const sceneId = "scene_" + (Date.now() + 1);
+          novel.chapters.push({
+            id: chapId,
+            title: `Bab ${num}`,
+            scenes: [{ id: sceneId, title: "Adegan 1", summary: "", content: "" }]
+          });
+          saveState();
+          renderOutline();
+          showToast("Bab baru ditambahkan.");
+        });
+
+        const outlineContainer = document.getElementById("outlineContainer");
+        outlineContainer.addEventListener("change", function (e) {
+          const novel = getActiveNovel();
+          if (!novel) return;
+
+          if (e.target.matches("[data-chap-title]")) {
+            const chapId = e.target.getAttribute("data-chap-title");
+            const chap = novel.chapters.find(function (c) { return c.id === chapId; });
+            if (chap) {
+              chap.title = e.target.value.trim() || chap.title;
+              saveState();
+            }
+          }
+
+          if (e.target.matches("[data-scene]")) {
+            const chapId = e.target.getAttribute("data-chap");
+            const sceneId = e.target.getAttribute("data-scene");
+            const field = e.target.getAttribute("data-field");
+            const chap = novel.chapters.find(function (c) { return c.id === chapId; });
+            const scene = chap && chap.scenes.find(function (s) { return s.id === sceneId; });
+            if (scene) {
+              scene[field] = e.target.value;
+              saveState();
+            }
+          }
+        });
+
+        outlineContainer.addEventListener("click", function (e) {
+          const novel = getActiveNovel();
+          if (!novel) return;
+
+          const addSceneBtn = e.target.closest("[data-add-scene]");
+          if (addSceneBtn) {
+            const chapId = addSceneBtn.getAttribute("data-add-scene");
+            const chap = novel.chapters.find(function (c) { return c.id === chapId; });
+            if (chap) {
+              chap.scenes.push({
+                id: "scene_" + Date.now(),
+                title: `Adegan ${chap.scenes.length + 1}`,
+                summary: "",
+                content: ""
+              });
+              saveState();
+              renderOutline();
+            }
+            return;
+          }
+
+          const delChapBtn = e.target.closest("[data-del-chap]");
+          if (delChapBtn) {
+            if (novel.chapters.length <= 1) {
+              showToast("Minimal harus ada 1 bab dalam novel.");
+              return;
+            }
+            const chapId = delChapBtn.getAttribute("data-del-chap");
+            novel.chapters = novel.chapters.filter(function (c) { return c.id !== chapId; });
+            saveState();
+            renderOutline();
+            return;
+          }
+
+          const openSceneBtn = e.target.closest("[data-open-scene]");
+          if (openSceneBtn) {
+            const parts = openSceneBtn.getAttribute("data-open-scene").split(":");
+            state.activeChapterId = parts[0];
+            state.activeSceneId = parts[1];
+            saveState();
+            switchView("editor");
+            return;
+          }
+
+          const delSceneBtn = e.target.closest("[data-del-scene]");
+          if (delSceneBtn) {
+            const parts = delSceneBtn.getAttribute("data-del-scene").split(":");
+            const chap = novel.chapters.find(function (c) { return c.id === parts[0]; });
+            if (!chap || chap.scenes.length <= 1) {
+              showToast("Minimal harus ada 1 adegan dalam bab.");
+              return;
+            }
+            chap.scenes = chap.scenes.filter(function (s) { return s.id !== parts[1]; });
+            saveState();
+            renderOutline();
+          }
+        });
+
+        // Editor Scene Tree & Auto-Save
+        document.getElementById("editorSceneTree").addEventListener("click", function (e) {
+          const btn = e.target.closest("[data-open-scene]");
+          if (!btn) return;
+          const parts = btn.getAttribute("data-open-scene").split(":");
+          state.activeChapterId = parts[0];
+          state.activeSceneId = parts[1];
+          saveState();
+          renderEditor();
+        });
+
+        function handleEditorInput() {
+          const novel = getActiveNovel();
+          if (!novel) return;
+          const chap = novel.chapters.find(function (c) { return c.id === state.activeChapterId; });
+          const scene = chap && chap.scenes.find(function (s) { return s.id === state.activeSceneId; });
+          if (!scene) return;
+
+          scene.title = document.getElementById("activeSceneTitleInput").value;
+          scene.content = document.getElementById("manuscriptTextarea").value;
+          saveState();
+          updateEditorWordCounter();
+          syncProjectContextUI();
+        }
+
+        document.getElementById("activeSceneTitleInput").addEventListener("input", handleEditorInput);
+        document.getElementById("manuscriptTextarea").addEventListener("input", handleEditorInput);
+
+        document.getElementById("manualSaveBtn").addEventListener("click", function () {
+          handleEditorInput();
+          renderEditor();
+          showToast("Naskah tersimpan secara offline.");
+        });
+
+        document.getElementById("zenModeBtn").addEventListener("click", function () {
+          document.getElementById("editorWrapper").classList.toggle("zen-mode");
+        });
+      }
+
+      /* ========================================================================
+         10. BOOTSTRAP
+         ======================================================================== */
+      window.addEventListener("DOMContentLoaded", function () {
+        loadState();
+        initPWA();
+        bindEvents();
+        applyLanguage();
+        renderAll();
+      });
+    })();
+  </script>
+</body>
+</html>
+
+
